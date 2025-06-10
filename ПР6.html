@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Data</title>
+    <style>
+        #loader { display: none; font-weight: bold; margin: 20px 0; }
+        .error { color: red; margin: 20px 0; }
+        .pagination { margin: 20px 0; }
+        .pagination button { margin: 0 2px; }
+        .search-box { margin: 20px 0; }
+        .user-card { border: 1px solid #ccc; border-radius: 6px; padding: 10px; margin: 8px 0; }
+    </style>
+</head>
+<body>
+    <div class="search-box">
+        <input type="text" id="search" placeholder="Пошук за ім'ям...">
+    </div>
+    <div id="loader">Завантаження...</div>
+    <div id="error" class="error"></div>
+    <div id="data-container"></div>
+    <div class="pagination" id="pagination"></div>
+
+    <script>
+        // --- Константи ---
+        const API_URL = 'https://jsonplaceholder.typicode.com/users';
+        const PER_PAGE = 3;
+        let allData = [];
+        let filteredData = [];
+        let currentPage = 1;
+
+        // --- Кешування ---
+        function saveToCache(data) {
+            localStorage.setItem('users', JSON.stringify(data));
+        }
+        function loadFromCache() {
+            const data = localStorage.getItem('users');
+            return data ? JSON.parse(data) : null;
+        }
+
+        // --- Завантаження даних ---
+        async function fetchData() {
+            showLoader(true);
+            showError('');
+            let data = loadFromCache();
+            if (data) {
+                allData = data;
+                filteredData = data;
+                showLoader(false);
+                render();
+                return;
+            }
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error('Помилка завантаження');
+                data = await response.json();
+                allData = data;
+                filteredData = data;
+                saveToCache(data);
+                showLoader(false);
+                render();
+            } catch (error) {
+                showLoader(false);
+                showError('Не вдалося отримати дані з API');
+            }
+        }
+
+        // --- Відображення даних ---
+        function render() {
+            const container = document.getElementById('data-container');
+            container.innerHTML = '';
+            const start = (currentPage - 1) * PER_PAGE;
+            const end = start + PER_PAGE;
+            const pageData = filteredData.slice(start, end);
+            if (pageData.length === 0) {
+                container.innerHTML = '<div>Нічого не знайдено</div>';
+                renderPagination();
+                return;
+            }
+            pageData.forEach(user => {
+                const div = document.createElement('div');
+                div.className = 'user-card';
+                div.innerHTML = `<b>${user.name}</b><br>Email: ${user.email}<br>Телефон: ${user.phone}`;
+                container.appendChild(div);
+            });
+            renderPagination();
+        }
+
+        // --- Пошук/фільтрація ---
+        document.getElementById('search').addEventListener('input', function() {
+            const val = this.value.trim().toLowerCase();
+            filteredData = allData.filter(user => user.name.toLowerCase().includes(val));
+            currentPage = 1;
+            render();
+        });
+
+        // --- Пагінація ---
+        function renderPagination() {
+            const pag = document.getElementById('pagination');
+            pag.innerHTML = '';
+            const total = Math.ceil(filteredData.length / PER_PAGE);
+            if (total <= 1) return;
+            for (let i = 1; i <= total; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                if (i === currentPage) btn.disabled = true;
+                btn.onclick = () => { currentPage = i; render(); };
+                pag.appendChild(btn);
+            }
+        }
+
+        // --- Індикатор завантаження та помилки ---
+        function showLoader(show) {
+            document.getElementById('loader').style.display = show ? 'block' : 'none';
+        }
+        function showError(msg) {
+            document.getElementById('error').textContent = msg;
+        }
+
+        // --- Старт ---
+        fetchData();
+    </script>
+</body>
+</html>
