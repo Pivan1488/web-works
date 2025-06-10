@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Динамічне меню</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    nav.main-menu {
+      background: #333;
+      color: #fff;
+    }
+
+    .burger-menu {
+      display: none;
+      background: none;
+      border: none;
+      padding: 1rem;
+      cursor: pointer;
+    }
+
+    .burger-menu span {
+      display: block;
+      width: 25px;
+      height: 3px;
+      background: #fff;
+      margin: 5px 0;
+    }
+
+    ul#menuContainer {
+      list-style: none;
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+      flex-wrap: wrap;
+    }
+
+    ul#menuContainer li {
+      position: relative;
+    }
+
+    ul#menuContainer a {
+      color: #fff;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      display: block;
+    }
+
+    ul#menuContainer a:hover,
+    ul#menuContainer a:focus,
+    ul#menuContainer a.active {
+      background: #555;
+    }
+
+    .submenu,
+    .submenu-level-3 {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: #444;
+      min-width: 180px;
+      z-index: 1000;
+      flex-direction: column;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .submenu-level-3 {
+      left: 100%;
+      top: 0;
+    }
+
+    li.open > .submenu {
+      display: flex;
+    }
+
+    li.open > a::after {
+      content: " ▲";
+    }
+
+    li.has-submenu > a::after {
+      content: " ▼";
+      margin-left: 5px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-5px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .burger-menu {
+        display: block;
+      }
+
+      ul#menuContainer {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        background: #333;
+      }
+
+      ul#menuContainer.show {
+        display: flex;
+        animation: fadeIn 0.3s ease;
+      }
+
+      .submenu,
+      .submenu-level-3 {
+        position: static;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="main-menu">
+    <button class="burger-menu" id="burgerBtn" aria-label="Меню">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <ul id="menuContainer" tabindex="0">
+      <!-- Динамічне меню -->
+    </ul>
+  </nav>
+
+  <script>
+    const menuData = {
+      "items": [
+        {
+          "title": "Головна",
+        },
+        {
+          "title": "Про нас",
+        },
+        {
+          "title": "Послуги",
+          "submenu": [
+            {
+              "title": "Дизайн",
+            },
+            {
+              "title": "Розробка",
+              "submenu": [
+                {
+                  "title": "Front-End",
+                },
+                {
+                  "title": "Back-End",
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Контакти",
+        },
+        {
+          "title": "Блог",
+        }
+      ]
+    };
+
+    const menuContainer = document.getElementById('menuContainer');
+    const burgerBtn = document.getElementById('burgerBtn');
+
+    function createMenuItem(item, level = 1) {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = item.link || '#';
+      a.textContent = item.title;
+      a.setAttribute('tabindex', '0');
+      li.appendChild(a);
+
+      if (item.submenu && item.submenu.length > 0) {
+        li.classList.add('has-submenu');
+        const submenu = document.createElement('ul');
+        submenu.classList.add(level === 1 ? 'submenu' : 'submenu-level-3');
+
+        item.submenu.forEach(subitem => {
+          submenu.appendChild(createMenuItem(subitem, level + 1));
+        });
+
+        li.appendChild(submenu);
+
+        // Клік для розкриття
+        a.addEventListener('click', (e) => {
+          e.preventDefault();
+          li.classList.toggle('open');
+          saveMenuState();
+        });
+
+        // Доступність з клавіатури
+        a.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            li.classList.toggle('open');
+            saveMenuState();
+          }
+        });
+      }
+
+      return li;
+    }
+
+    function loadMenu() {
+      menuData.items.forEach(item => {
+        const menuItem = createMenuItem(item);
+        menuContainer.appendChild(menuItem);
+      });
+    }
+
+    function saveMenuState() {
+      const state = [...menuContainer.querySelectorAll('li')].map(li =>
+        li.classList.contains('open')
+      );
+      localStorage.setItem('menuState', JSON.stringify(state));
+    }
+
+    function restoreMenuState() {
+      const state = JSON.parse(localStorage.getItem('menuState') || '[]');
+      const items = menuContainer.querySelectorAll('li');
+      state.forEach((open, i) => {
+        if (open) items[i]?.classList.add('open');
+      });
+    }
+
+    burgerBtn.addEventListener('click', () => {
+      menuContainer.classList.toggle('show');
+    });
+
+    loadMenu();
+    restoreMenuState();
+  </script>
+</body>
+</html>
