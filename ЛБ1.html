@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Семантична структура сайту</title>
+    <meta name="description" content="Демонстрація семантичної структури HTML5: шапка, навігація, статті, бічна панель, підвал.">
+    <!-- Для доступності: основний колір, шрифт -->
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f7f7f7; }
+        header, nav, main, aside, footer { box-sizing: border-box; }
+        header { background: #222; color: #fff; padding: 0; }
+        .logo { font-size: 1.5em; font-weight: bold; padding: 16px 24px; display: inline-block; }
+        nav ul { list-style: none; margin: 0; padding: 0; display: flex; }
+        nav li { margin: 0; }
+        nav a { color: #fff; text-decoration: none; padding: 16px 20px; display: block; }
+        nav a:focus, nav a:hover { background: #444; outline: 2px solid #fff; }
+        main { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 12px; }
+        .content { flex: 3; }
+        aside { flex: 1; margin-left: 32px; background: #fff; padding: 18px; border-radius: 8px; box-shadow: 0 2px 8px #0001; }
+        article { background: #fff; margin-bottom: 24px; padding: 18px; border-radius: 8px; box-shadow: 0 2px 8px #0001; }
+        article h2 { margin-top: 0; }
+        .search-form { margin-bottom: 24px; }
+        .search-form input[type="search"] { width: 70%; padding: 6px; }
+        .search-form button { padding: 6px 12px; }
+        .social-widget { margin: 18px 0; }
+        .social-widget a { margin-right: 10px; text-decoration: none; font-size: 1.3em; }
+        footer { background: #222; color: #fff; text-align: center; padding: 18px 0; margin-top: 32px; }
+        @media (max-width: 900px) {
+            main { flex-direction: column; }
+            aside { margin-left: 0; margin-top: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Шапка сайту з логотипом та навігацією -->
+    <header>
+        <div class="logo" aria-label="Логотип сайту">MySite</div>
+        <nav aria-label="Головне меню">
+            <ul>
+                <li><a href="#" tabindex="1">Головна</a></li>
+                <li><a href="#" tabindex="2">Новини</a></li>
+                <li><a href="#" tabindex="3">Статті</a></li>
+                <li><a href="#" tabindex="4">Про нас</a></li>
+                <li><a href="#" tabindex="5">Контакти</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Головна секція з статтями -->
+        <section class="content">
+            <!-- Форма пошуку -->
+            <form class="search-form" role="search" aria-label="Пошук по сайту">
+                <label for="search" class="visually-hidden">Пошук</label>
+                <input type="search" id="search" name="search" placeholder="Пошук..." aria-label="Пошук">
+                <button type="submit">Знайти</button>
+            </form>
+
+            <!-- Стаття 1 -->
+            <article>
+                <header>
+                    <h2>Що таке семантична верстка?</h2>
+                </header>
+                <p>
+                    Семантична верстка — це використання тегів HTML5 відповідно до їхнього призначення. Це покращує доступність, SEO та підтримку коду.
+                </p>
+            </article>
+            <!-- Стаття 2 -->
+            <article>
+                <header>
+                    <h2>Переваги правильної структури</h2>
+                </header>
+                <p>
+                    Чітка структура допомагає користувачам і пошуковим системам краще розуміти зміст сторінки. Також це спрощує підтримку та розвиток проекту.
+                </p>
+            </article>
+            <!-- Стаття 3 -->
+            <article>
+                <header>
+                    <h2>Як перевірити валідність коду?</h2>
+                </header>
+                <p>
+                    Для перевірки валідності HTML-коду використовуйте <a href="https://validator.w3.org/" target="_blank" rel="noopener">W3C Validator</a> або інші онлайн-інструменти.
+                </p>
+            </article>
+        </section>
+
+        <!-- Бічна панель з додатковою інформацією -->
+        <aside aria-label="Додаткова інформація">
+            <!-- Віджет соціальних мереж -->
+            <section class="social-widget" aria-label="Ми в соцмережах">
+                <h3>Ми в соцмережах</h3>
+                <a href="https://facebook.com" aria-label="Facebook" target="_blank" rel="noopener">🔵</a>
+                <a href="https://twitter.com" aria-label="Twitter" target="_blank" rel="noopener">🐦</a>
+                <a href="https://instagram.com" aria-label="Instagram" target="_blank" rel="noopener">📸</a>
+            </section>
+            <!-- Контактна інформація -->
+            <section aria-label="Контакти">
+                <h3>Контакти</h3>
+                <address>
+                    <strong>Email:</strong> <a href="mailto:info@mysite.com">info@mysite.com</a><br>
+                    <strong>Телефон:</strong> <a href="tel:+380123456789">+38 (067) 247-49-71</a><br>
+                    <strong>Адреса:</strong> м. Київ, вул. Срібнокільська, 1
+                </address>
+            </section>
+        </aside>
+    </main>
+
+    <!-- Підвал з контактами та копірайтом -->
+    <footer>
+        <div>
+            &copy; 2024 MySite. Всі права захищено.
+        </div>
+        <div>
+            Зв'яжіться з нами: <a href="mailto:info@mysite.com" style="color:#fff;">info@mysite.com</a>
+        </div>
+    </footer>
+
+    <!--
+        Структура:
+        - header: логотип і навігація
+        - main: section.content (статті) + aside (бічна панель)
+        - footer: контакти і копірайт
+        Всі елементи мають правильну вкладеність і семантику.
+        Додано aria-атрибути для доступності.
+        Використано заголовки h2, h3 для ієрархії.
+        Валідація: код відповідає стандартам HTML5.
+    -->
+</body>
+</html>
