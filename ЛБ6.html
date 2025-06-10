@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Фільтрація та сортування</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .filters {
+            margin-bottom: 20px;
+        }
+        .filters input, .filters select {
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .active-filter {
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="filters">
+        <input type="text" id="search" placeholder="Пошук..." />
+        <select id="sortBy">
+            <option value="name">За назвою</option>
+            <option value="price">За ціною</option>
+        </select>
+        <button id="resetFilters">Скинути фільтри</button>
+    </div>
+   
+    <div id="items-container">
+        <!-- Елементи для фільтрації -->
+    </div>
+
+    <script>
+        const products = [
+            { id: 1, name: 'Товар A', price: 100 },
+            { id: 2, name: 'Товар B', price: 200 },
+            { id: 3, name: 'Товар C', price: 150 },
+            { id: 4, name: 'Товар D', price: 50 },
+            { id: 5, name: 'Товар E', price: 300 },
+        ];
+
+        class FilterSystem {
+            constructor(data) {
+                this.data = data;
+                this.filteredData = [...data];
+                this.init();
+            }
+
+            init() {
+                this.renderItems();
+                document.getElementById('search').addEventListener('input', () => this.applyFilters());
+                document.getElementById('sortBy').addEventListener('change', () => this.applyFilters());
+                document.getElementById('resetFilters').addEventListener('click', () => this.resetFilters());
+            }
+
+            applyFilters() {
+                const searchValue = document.getElementById('search').value.toLowerCase();
+                const sortCriterion = document.getElementById('sortBy').value;
+
+                this.filteredData = this.data.filter(item => 
+                    item.name.toLowerCase().includes(searchValue)
+                );
+
+                this.sortData(sortCriterion);
+                this.renderItems();
+            }
+
+            sortData(criterion) {
+                this.filteredData.sort((a, b) => {
+                    if (criterion === 'name') {
+                        return a.name.localeCompare(b.name);
+                    } else if (criterion === 'price') {
+                        return a.price - b.price;
+                    }
+                    return 0;
+                });
+            }
+
+            renderItems() {
+                const container = document.getElementById('items-container');
+                container.innerHTML = '';
+                this.filteredData.forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'item';
+                    itemDiv.innerHTML = `<strong>${item.name}</strong><br>Ціна: ${item.price} грн`;
+                    container.appendChild(itemDiv);
+                });
+            }
+
+            resetFilters() {
+                document.getElementById('search').value = '';
+                document.getElementById('sortBy').value = 'name';
+                this.filteredData = [...this.data];
+                this.renderItems();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new FilterSystem(products);
+        });
+    </script>
+</body>
+</html>
