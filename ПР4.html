@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Інтерактивні елементи</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin:0; padding:0; }
+        /* Модальне вікно */
+        .modal-bg {
+            display: none;
+            position: fixed; left:0; top:0; width:100vw; height:100vh;
+            background: rgba(0,0,0,0.5);
+            justify-content: center; align-items: center;
+            z-index: 1000;
+        }
+        .modal-bg.active { display: flex; }
+        .modal {
+            background: #fff; padding: 20px 30px; border-radius: 8px; min-width: 300px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+            animation: modalIn .3s;
+            position: relative;
+        }
+        @keyframes modalIn {
+            from { transform: translateY(-40px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .close-modal {
+            position: absolute; right: 10px; top: 10px; cursor: pointer; font-size: 20px; color: #888;
+        }
+        /* Випадаюче меню */
+        .dropdown {
+            position: relative; display: inline-block; margin: 20px;
+        }
+        .dropdown-btn {
+            padding: 10px 20px; background: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer;
+        }
+        .dropdown-content {
+            display: none; position: absolute; background: #fff; min-width: 160px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 10; border-radius: 4px; margin-top: 5px;
+        }
+        .dropdown-content a {
+            color: #333; padding: 10px 16px; text-decoration: none; display: block;
+        }
+        .dropdown-content a:hover { background: #f1f1f1; }
+        .dropdown.open .dropdown-content { display: block; animation: fadeIn .2s; }
+        @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+        /* Галерея */
+        .gallery { display: flex; gap: 10px; margin: 30px 0; flex-wrap: wrap;}
+        .gallery img {
+            width: 120px; height: 80px; object-fit: cover; border-radius: 6px; cursor: pointer;
+            transition: transform .2s;
+        }
+        .gallery img:hover { transform: scale(1.08); box-shadow: 0 2px 12px rgba(0,0,0,0.15);}
+        /* Форма */
+        form { max-width: 350px; margin: 30px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #fafbfc;}
+        label { display: block; margin-bottom: 6px; }
+        input, textarea {
+            width: 100%; padding: 8px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 4px;
+            font-size: 1em;
+        }
+        .error { color: #d00; font-size: 0.95em; margin-bottom: 8px; }
+        .success { color: #080; font-size: 1em; margin-bottom: 8px; }
+        button[type="submit"] {
+            background: #28a745; color: #fff; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;
+            transition: background .2s;
+        }
+        button[type="submit"]:hover { background: #218838; }
+        /* Кнопка "вгору" */
+        #toTop {
+            display: none; position: fixed; right: 20px; bottom: 30px; z-index: 100;
+            background: #007bff; color: #fff; border: none; border-radius: 50%; width: 44px; height: 44px;
+            font-size: 22px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transition: background .2s, transform .2s;
+        }
+        #toTop:hover { background: #0056b3; transform: scale(1.1);}
+    </style>
+</head>
+<body>
+    <!-- Випадаюче меню -->
+    <div class="dropdown" id="dropdownMenu">
+        <button class="dropdown-btn">Меню</button>
+        <div class="dropdown-content">
+            <a href="#">Головна</a>
+            <a href="#">Про нас</a>
+            <a href="#">Контакти</a>
+        </div>
+    </div>
+
+    <!-- Кнопка модального вікна -->
+    <button id="openModal">Відкрити модальне вікно</button>
+
+    <!-- Модальне вікно -->
+    <div class="modal-bg" id="modalBg">
+        <div class="modal">
+            <span class="close-modal" id="closeModal">&times;</span>
+            <h2>Модальне вікно</h2>
+            <p>Це просте модальне вікно. Натисніть "×" або поза вікном для закриття.</p>
+        </div>
+    </div>
+
+    <!-- Галерея -->
+    <h2>Галерея</h2>
+    <div class="gallery" id="gallery">
+        <img src="CAT1.jpg" alt="Кіт 1">
+        <img src="CAT2.jpg" alt="Кіт 2">
+        <img src="CAT3.jpg" alt="Кіт 3">
+        <img src="CAT4.jpg" alt="Кіт 4">
+    </div>
+
+    <!-- Форма -->
+    <h2>Форма зворотного зв'язку</h2>
+    <form id="feedbackForm" novalidate>
+        <div id="formMsg"></div>
+        <label for="name">Ім'я:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <label for="msg">Повідомлення:</label>
+        <textarea id="msg" name="msg" rows="3" required></textarea>
+        <button type="submit">Відправити</button>
+    </form>
+
+    <!-- Кнопка "вгору" -->
+    <button id="toTop" title="Вгору">&#8679;</button>
+
+    <script>
+        // Модальне вікно
+        const openModal = document.getElementById('openModal');
+        const modalBg = document.getElementById('modalBg');
+        const closeModal = document.getElementById('closeModal');
+        openModal.onclick = () => modalBg.classList.add('active');
+        closeModal.onclick = () => modalBg.classList.remove('active');
+        modalBg.onclick = (e) => { if(e.target === modalBg) modalBg.classList.remove('active'); };
+
+        // Випадаюче меню
+        const dropdown = document.getElementById('dropdownMenu');
+        dropdown.querySelector('.dropdown-btn').onclick = function() {
+            dropdown.classList.toggle('open');
+        };
+        document.addEventListener('click', function(e) {
+            if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
+        });
+
+        // Галерея: клік по зображенню - модальне збільшення
+        document.getElementById('gallery').addEventListener('click', function(e) {
+            if(e.target.tagName === 'IMG') {
+                showImageModal(e.target.src, e.target.alt);
+            }
+        });
+        function showImageModal(src, alt) {
+            modalBg.classList.add('active');
+            modalBg.querySelector('.modal').innerHTML = `
+                <span class="close-modal" id="closeModalImg">&times;</span>
+                <img src="${src}" alt="${alt}" style="max-width:100%;border-radius:8px;">
+                <div style="text-align:center;margin-top:10px;">${alt}</div>
+            `;
+            document.getElementById('closeModalImg').onclick = () => modalBg.classList.remove('active');
+        }
+
+        // Кнопка "вгору"
+        const toTop = document.getElementById('toTop');
+        window.addEventListener('scroll', function() {
+            if(window.scrollY > 200) toTop.style.display = 'block';
+            else toTop.style.display = 'none';
+        });
+        toTop.onclick = function() {
+            window.scrollTo({top:0, behavior:'smooth'});
+        };
+
+        // Валідація форми
+        const form = document.getElementById('feedbackForm');
+        const formMsg = document.getElementById('formMsg');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            formMsg.innerHTML = '';
+            let errors = [];
+            const name = form.name.value.trim();
+            const email = form.email.value.trim();
+            const msg = form.msg.value.trim();
+            if(name.length < 2) errors.push("Введіть ім'я (мінімум 2 символи)");
+            if(!/^[^@]+@[^@]+\.[^@]+$/.test(email)) errors.push("Введіть коректний email");
+            if(msg.length < 5) errors.push("Повідомлення занадто коротке");
+            if(errors.length) {
+                formMsg.innerHTML = '<div class="error">' + errors.join('<br>') + '</div>';
+            } else {
+                formMsg.innerHTML = '<div class="success">Дякуємо за звернення!</div>';
+                form.reset();
+            }
+        });
+    </script>
+</body>
+</html>
