@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Валідація форми</title>
+    <style>
+        .error { color: #d00; font-size: 0.95em; }
+        .success { color: #080; font-size: 1em; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 4px; }
+        input[type="text"], input[type="email"], input[type="password"], input[type="tel"], input[type="date"] {
+            width: 100%; padding: 6px; margin-bottom: 2px;
+        }
+    </style>
+</head>
+<body>
+    <form id="registrationForm" autocomplete="off">
+        <div class="form-group">
+            <label for="username">Ім'я користувача:</label>
+            <input type="text" id="username" name="username" required>
+            <span class="error" id="usernameError"></span>
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <span class="error" id="emailError"></span>
+        </div>
+        <div class="form-group">
+            <label for="password">Пароль:</label>
+            <input type="password" id="password" name="password" required>
+            <span class="error" id="passwordError"></span>
+        </div>
+        <div class="form-group">
+            <label for="confirmPassword">Підтвердження паролю:</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" required>
+            <span class="error" id="confirmPasswordError"></span>
+        </div>
+        <div class="form-group">
+            <label for="phone">Телефон:</label>
+            <input type="tel" id="phone" name="phone" required>
+            <span class="error" id="phoneError"></span>
+        </div>
+        <div class="form-group">
+            <label for="dob">Дата народження:</label>
+            <input type="date" id="dob" name="dob" required>
+            <span class="error" id="dobError"></span>
+        </div>
+        <div class="form-group">
+            <label>
+                <input type="checkbox" id="terms" name="terms" required>
+                Я погоджуюсь з умовами
+            </label>
+            <span class="error" id="termsError"></span>
+        </div>
+        <button type="submit">Зареєструватися</button>
+        <div id="formSuccess" class="success"></div>
+    </form>
+
+    <script>
+        function validateEmail(email) {
+            return /^[^@]+@[^@]+\.[^@]+$/.test(email);
+        }
+        function validatePassword(password) {
+            return /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password);
+        }
+        function validatePhone(phone) {
+            return /^\+?\d{10,15}$/.test(phone.replace(/\s+/g, ''));
+        }
+        function getAge(dateString) {
+            let today = new Date();
+            let dob = new Date(dateString);
+            let age = today.getFullYear() - dob.getFullYear();
+            let m = today.getMonth() - dob.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+            return age;
+        }
+
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            let valid = true;
+            // Очищення помилок
+            ['username','email','password','confirmPassword','phone','dob','terms','formSuccess'].forEach(id=>{
+                let el = document.getElementById(id+'Error');
+                if(el) el.textContent = '';
+                if(id==='formSuccess') document.getElementById(id).textContent = '';
+            });
+
+            // Перевірка імені
+            let username = document.getElementById('username').value.trim();
+            if(username === '') {
+                document.getElementById('usernameError').textContent = "Введіть ім'я користувача";
+                valid = false;
+            }
+
+            // Email
+            let email = document.getElementById('email').value.trim();
+            if(email === '') {
+                document.getElementById('emailError').textContent = "Введіть email";
+                valid = false;
+            } else if(!validateEmail(email)) {
+                document.getElementById('emailError').textContent = "Некоректний email";
+                valid = false;
+            }
+
+            // Пароль
+            let password = document.getElementById('password').value;
+            if(password === '') {
+                document.getElementById('passwordError').textContent = "Введіть пароль";
+                valid = false;
+            } else if(!validatePassword(password)) {
+                document.getElementById('passwordError').textContent = "Мінімум 8 символів, велика літера і цифра";
+                valid = false;
+            }
+
+            // Підтвердження паролю
+            let confirmPassword = document.getElementById('confirmPassword').value;
+            if(confirmPassword !== password) {
+                document.getElementById('confirmPasswordError').textContent = "Паролі не співпадають";
+                valid = false;
+            }
+
+            // Телефон
+            let phone = document.getElementById('phone').value.trim();
+            if(phone === '') {
+                document.getElementById('phoneError').textContent = "Введіть телефон";
+                valid = false;
+            } else if(!validatePhone(phone)) {
+                document.getElementById('phoneError').textContent = "Некоректний телефон";
+                valid = false;
+            }
+
+            // Дата народження
+            let dob = document.getElementById('dob').value;
+            if(dob === '') {
+                document.getElementById('dobError').textContent = "Виберіть дату народження";
+                valid = false;
+            } else if(getAge(dob) < 18) {
+                document.getElementById('dobError').textContent = "Вам має бути 18+";
+                valid = false;
+            }
+
+            // Згода
+            let terms = document.getElementById('terms').checked;
+            if(!terms) {
+                document.getElementById('termsError').textContent = "Потрібна згода";
+                valid = false;
+            }
+
+            // Успіх
+            if(valid) {
+                document.getElementById('formSuccess').textContent = "Реєстрація успішна!";
+                this.reset();
+            }
+        });
+    </script>
+</body>
+</html>
